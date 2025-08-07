@@ -286,7 +286,7 @@ def main():
             executar_recomendacoes_avancadas(simbolo, periodo_analise)
     elif modo_operacao == "Comparação de Ativos":
         if tipo_ativo:
-            executar_comparacao_ativos(tipo_ativo, periodo_analise)
+            executar_comparacao_ativos(simbolo, periodo_analise)
 
 if __name__ == "__main__":
     main()
