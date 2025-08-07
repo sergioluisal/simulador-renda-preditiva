@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Interface Streamlit com Análise Preditiva Integrada
-Baseado no simulador existente com funcionalidades avançadas de recomendação
 """
 
 import streamlit as st
@@ -44,10 +43,6 @@ st.markdown("""
     .main-header {
         font-size: 2.5rem; font-weight: bold; text-align: center; margin-bottom: 2rem;
         color: #1E88E5;
-    }
-    .metric-card {
-        background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem;
-        border-left: 5px solid #1E88E5; margin: 0.5rem 0;
     }
     .recommendation-box {
         padding: 1rem; border-radius: 0.5rem; font-weight: bold;
@@ -94,7 +89,6 @@ def executar_recomendacoes_avancadas(simbolo, periodo_analise):
 
 def executar_comparacao_ativos(periodo_analise):
     st.header("⚖️ Comparação de Ativos")
-    
     categoria_sugestao = st.sidebar.selectbox(
         "Selecione uma categoria para sugestões de ativos:", 
         list(CATEGORIAS_DE_ATIVOS.keys()), 
@@ -102,7 +96,7 @@ def executar_comparacao_ativos(periodo_analise):
     )
     categoria_tecnica_sugestao = CATEGORIAS_DE_ATIVOS[categoria_sugestao]
     ativos_sugeridos = obter_sugestoes_por_categoria(categoria_tecnica_sugestao)
-    exemplo_ativos = ",".join(ativos_sugeridos[:3]) if ativos_sugeridos else "AAPL,GOOGL,MSFT"
+    exemplo_ativos = ",".join(ativos_sugeridos[:4]) if ativos_sugeridos else "AAPL,GOOGL,MSFT,TSLA"
     
     ativos_comparacao = st.text_area(
         "Digite os símbolos dos ativos separados por vírgula:",
@@ -147,8 +141,19 @@ def exibir_analise_preditiva(resultado):
     fig = AnalisePreditiva().criar_grafico_analise_completa(resultado)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
+        
+        # <<< BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
-            st.markdown("""...""")
+            st.markdown("""
+            - **Preço (Azul):** Mostra a cotação de fechamento do ativo ao longo do tempo.
+            - **BB Superior / Inferior (Vermelho Tracejado):** Criam um "canal" de volatilidade. Preço perto da banda superior pode indicar sobrecompra; perto da inferior, sobrevenda.
+            - **Média Móvel (Laranja):** Suaviza o preço para mostrar a tendência principal. Se o preço está acima dela, a tendência geral é de alta.
+            - **RSI (Roxo):** Mede a força e velocidade do movimento. Acima de 70 é considerado sobrecomprado; abaixo de 30, sobrevendido.
+            - **MACD (Azul, abaixo do RSI):** É um indicador de momentum que mostra a relação entre duas médias de preços.
+            - **Sinal (Vermelho, abaixo do RSI):** É uma média da própria linha MACD. O cruzamento entre as duas linhas gera sinais de compra ou venda.
+            - **Histograma (Laranja, barras):** Mostra a força da tendência. Barras grandes indicam que a tendência (de alta ou baixa) está forte.
+            - **Score Consolidado (Preto):** Uma pontuação criada por este programa que combina todos os indicadores para gerar a recomendação final.
+            """)
 
 def exibir_recomendacoes_avancadas(resultado):
     st.success("✅ Recomendação avançada gerada!")
@@ -163,7 +168,7 @@ def exibir_recomendacoes_avancadas(resultado):
         st.info("💡 **Sugestão de Análise:** A recomendação de compra é forte. Verifique os preços-alvo.")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💰 Preço Atual", f"${resultado['preco_atual']:.2f}")
-    col2.metric("📊 Score Final", f"{resultado['score_final']:.3f}")
+    col2.metric("📊 Score Final", f"${resultado['score_final']:.3f}")
     col3.metric("🎯 Alvo Principal", f"${resultado['preco_alvo_1']:.2f}")
     col4.metric("🛑 Stop Loss", f"${resultado['stop_loss']:.2f}")
     if resultado['padroes_recentes']:
@@ -180,16 +185,15 @@ def exibir_recomendacoes_avancadas(resultado):
     if fig:
         st.plotly_chart(fig, use_container_width=True)
         
-        # <<< NOVO BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
-        
+        # <<< BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
             st.markdown("""
             - **Gráfico de Candlestick:** Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.
-            - **BB Superior / Inferior (Bandas de Bollinger):** Criam um canal de volatilidade. Preço perto da banda superior pode indicar sobrecompra (possível venda); perto da inferior, sobrevenda (possível compra).
-            - **Média Móvel:** Suaviza o preço para mostrar a tendência principal. Se o preço está acima dela, a tendência é de alta, e vice-versa.
-            - **RSI (Índice de Força Relativa):** Mede a força do movimento. Acima de 70 é considerado sobrecomprado; abaixo de 30, sobrevendido.
-            - **MACD e Sinal:** Indicador de tendência. Quando a linha MACD (mais rápida) cruza para cima da linha de Sinal (mais lenta), é um sinal de compra. O inverso é um sinal de venda.
-            - **Histograma:** Representa a diferença entre o MACD e o Sinal. Barras grandes indicam que a tendência atual (alta ou baixa) está forte.
+            - **BB Superior / Inferior (Vermelho Tracejado):** Criam um "canal" de volatilidade. Preço perto da banda superior pode indicar sobrecompra; perto da inferior, sobrevenda.
+            - **Média Móvel (Azul):** Suaviza o preço para mostrar a tendência principal.
+            - **RSI (Roxo):** Mede a força do movimento. Acima de 70 é sobrecomprado; abaixo de 30, sobrevendido.
+            - **MACD e Sinal:** Indicador de tendência. O cruzamento da linha MACD sobre a linha de Sinal pode indicar o início de uma nova tendência.
+            - **Histograma:** Mostra a força da tendência indicada pelo MACD.
             - **Score de Recomendação:** Uma métrica ponderada que combina múltiplos indicadores para gerar a recomendação final.
             - **Volume:** Mostra a quantidade de ações negociadas. Um aumento no volume pode confirmar a força de uma tendência.
             """)
@@ -241,14 +245,12 @@ def main():
     if modo_operacao == "Comparação de Ativos":
         executar_comparacao_ativos(periodo_analise)
     else:
-        # Lógica para Análise Preditiva e Recomendações Avançadas
         nome_tipo_ativo = st.sidebar.selectbox(
             "Tipo de Ativo", 
             list(CATEGORIAS_DE_ATIVOS.keys()), 
             key="tipo_ativo_selectbox"
         )
         
-        # CORREÇÃO: Usar a função para obter a lista de símbolos correta
         categoria_tecnica = CATEGORIAS_DE_ATIVOS[nome_tipo_ativo]
         simbolos_sugeridos = obter_sugestoes_por_categoria(categoria_tecnica)
         
@@ -265,3 +267,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
