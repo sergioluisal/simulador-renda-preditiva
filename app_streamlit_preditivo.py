@@ -191,8 +191,37 @@ def exibir_analise_preditiva(resultado):
     fig = AnalisePreditiva().criar_grafico_analise_completa(resultado)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
+        # --- MUDANÇA 2: Nova legenda visual ---
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
-            st.markdown("""...""")
+            st.markdown("""
+                <div class="legend-item">
+                    <div class="legend-text"><strong>Candlestick:</strong> Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: red; border-style: dashed;"></div>
+                    <div class="legend-text"><strong>BB Superior / Inferior:</strong> Criam um "canal" de volatilidade.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: blue;"></div>
+                    <div class="legend-text"><strong>Média Móvel:</strong> Suaviza o preço para mostrar a tendência principal.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: purple;"></div>
+                    <div class="legend-text"><strong>RSI:</strong> Mede a força do movimento. Acima de 70 é sobrecomprado; abaixo de 30, sobrevendido.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: blue;"></div>
+                    <div class="legend-text"><strong>MACD:</strong> Indicador de momentum.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: orange;"></div>
+                    <div class="legend-text"><strong>Sinal:</strong> Média da linha MACD, usada para gerar sinais de cruzamento.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: lightblue;"></div>
+                    <div class="legend-text"><strong>Volume:</strong> Quantidade de ações negociadas. Aumento de volume confirma tendências.</div>
+                </div>
+            """, unsafe_allow_html=True)
 
 def exibir_recomendacoes_avancadas(resultado):
     st.success("✅ Recomendação avançada gerada!")
