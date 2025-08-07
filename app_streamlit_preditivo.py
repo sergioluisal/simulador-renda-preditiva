@@ -195,11 +195,12 @@ def exibir_analise_preditiva(resultado):
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
             st.markdown("""
                 <div class="legend-item">
-                    <div class="legend-text"><strong>Candlestick:</strong> Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.</div>
+                    <div class="legend-color-box" style="background-color: blue; border-style: dashed;"></div>
+                    <div class="legend-text"><strong>Preço:</strong> Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.</div>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color-box" style="background-color: red; border-style: dashed;"></div>
-                    <div class="legend-text"><strong>BB Superior / Inferior:</strong> Criam um "canal" de volatilidade.</div>
+                    <div class="legend-text"><strong>BB Superior / BB Inferior:</strong> Criam um "canal" de volatilidade.</div>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color-box" style="background-color: blue;"></div>
@@ -219,7 +220,11 @@ def exibir_analise_preditiva(resultado):
                 </div>
                 <div class="legend-item">
                     <div class="legend-color-box" style="background-color: lightblue;"></div>
-                    <div class="legend-text"><strong>Volume:</strong> Quantidade de ações negociadas. Aumento de volume confirma tendências.</div>
+                    <div class="legend-text"><strong>Histograma:</strong> Quantidade de ações negociadas. Aumento de volume confirma tendências.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: green;"></div>
+                    <div class="legend-text"><strong>Score Consolidado:</strong> Score Consolidado é a média ponderada dos sinais de todos os indicadores no grafico.</div>
                 </div>
             """, unsafe_allow_html=True)
 
