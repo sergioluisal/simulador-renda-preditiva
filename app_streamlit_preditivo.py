@@ -263,13 +263,13 @@ def main():
     tipo_ativo = ""
 
     if modo_operacao != "Comparação de Ativos":
-        tipo_ativo = st.sidebar.selectbox("Tipo de Ativo", list(ATIVOS_POPULARES.keys()), key="tipo_ativo_selectbox")
-        simbolos_sugeridos = ATIVOS_POPULARES[tipo_ativo]
+        tipo_ativo = st.sidebar.selectbox("Tipo de Ativo", list(CATEGORIAS_DE_ATIVOS.keys()), key="tipo_ativo_selectbox")
+        simbolos_sugeridos = CATEGORIAS_DE_ATIVOS[tipo_ativo]
         simbolo_selecionado = st.sidebar.selectbox("Símbolos Sugeridos", simbolos_sugeridos, key="simbolo_sugerido_selectbox")
         simbolo_manual = st.sidebar.text_input("Ou digite o símbolo manualmente:", value=simbolo_selecionado, key="simbolo_manual_text")
         simbolo = simbolo_manual.strip().upper() if simbolo_manual else simbolo_selecionado
     else:
-        tipo_ativo = st.sidebar.selectbox("Selecione uma categoria para sugestões:", list(ATIVOS_POPULARES.keys()), key="tipo_ativo_comparacao_selectbox")
+        tipo_ativo = st.sidebar.selectbox("Selecione uma categoria para sugestões:", list(CATEGORIAS_DE_ATIVOS.keys()), key="tipo_ativo_comparacao_selectbox")
 
     periodo_analise = st.sidebar.selectbox(
         "Período de Análise",
