@@ -25,7 +25,7 @@ except ImportError:
 
 ATIVOS_POPULARES = {
     "Ações Americanas": ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "NVDA"],
-    "Ações Brasileiras": ["PETR4.SA", "VALE3.SA", "ITUB4.SA", "BBDC4.SA", "MGLU3.SA"],
+    "Ações Brasileiras": ["PETR4.SA", "VALE3.SA", "ITUB4.SA", "BBDC4.SA", "MGLU3.SA", "BBAS3.SA"],
     "BDRs": ["AAPL34.SA", "GOGL34.SA", "MSFT34.SA", "AMZO34.SA", "TSLA34.SA"],
     "ETFs Brasileiros": ["BOVA11.SA", "SMAL11.SA", "IVVB11.SA", "DIVO11.SA"],
     "ETFs Americanos": ["SPY", "QQQ", "VTI", "VOO", "GLD", "SLV"]
