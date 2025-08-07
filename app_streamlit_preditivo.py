@@ -179,8 +179,20 @@ def exibir_recomendacoes_avancadas(resultado):
     fig = SistemaRecomendacoes().criar_grafico_recomendacao(resultado)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
+        
+        # <<< NOVO BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
+        
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
-            st.markdown("""...""")
+            st.markdown("""
+            - **Gráfico de Candlestick:** Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.
+            - **BB Superior / Inferior (Bandas de Bollinger):** Criam um canal de volatilidade. Preço perto da banda superior pode indicar sobrecompra (possível venda); perto da inferior, sobrevenda (possível compra).
+            - **Média Móvel:** Suaviza o preço para mostrar a tendência principal. Se o preço está acima dela, a tendência é de alta, e vice-versa.
+            - **RSI (Índice de Força Relativa):** Mede a força do movimento. Acima de 70 é considerado sobrecomprado; abaixo de 30, sobrevendido.
+            - **MACD e Sinal:** Indicador de tendência. Quando a linha MACD (mais rápida) cruza para cima da linha de Sinal (mais lenta), é um sinal de compra. O inverso é um sinal de venda.
+            - **Histograma:** Representa a diferença entre o MACD e o Sinal. Barras grandes indicam que a tendência atual (alta ou baixa) está forte.
+            - **Score de Recomendação:** Uma métrica ponderada que combina múltiplos indicadores para gerar a recomendação final.
+            - **Volume:** Mostra a quantidade de ações negociadas. Um aumento no volume pode confirmar a força de uma tendência.
+            """)
 
 def comparar_multiplos_ativos(simbolos, periodo):
     analisador = AnalisePreditiva()
