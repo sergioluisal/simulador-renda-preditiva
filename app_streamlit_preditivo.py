@@ -248,7 +248,7 @@ def comparar_multiplos_ativos(simbolos, periodo):
 # --- FUNÇÃO PRINCIPAL (MAIN) ---
 
 def main():
-    st.markdown('<h1 class="main-header">Simulador de Renda Variável</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">Simulador de Renda Variável Preditiva</h1>', unsafe_allow_html=True)
     
     st.sidebar.header("⚙️ Configurações")
     
