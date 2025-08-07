@@ -31,6 +31,7 @@ CATEGORIAS_DE_ATIVOS = {
     "ETFs Brasileiros": "etfs_brasileiros",
     "ETFs Americanos": "etfs_americanos"
 }
+
 st.set_page_config(
     page_title="Simulador de Renda Variável com Análise Preditiva",
     page_icon="📈",
@@ -91,9 +92,16 @@ def executar_recomendacoes_avancadas(simbolo, periodo_analise):
             except Exception as e:
                 st.error(f"Ocorreu um erro inesperado durante a recomendação: {e}")
 
-def executar_comparacao_ativos(tipo_ativo, periodo_analise):
+def executar_comparacao_ativos(periodo_analise):
     st.header("⚖️ Comparação de Ativos")
-    ativos_sugeridos = ATIVOS_POPULARES.get(tipo_ativo, [])
+    
+    categoria_sugestao = st.sidebar.selectbox(
+        "Selecione uma categoria para sugestões de ativos:", 
+        list(CATEGORIAS_DE_ATIVOS.keys()), 
+        key="tipo_ativo_comparacao_selectbox"
+    )
+    categoria_tecnica_sugestao = CATEGORIAS_DE_ATIVOS[categoria_sugestao]
+    ativos_sugeridos = obter_sugestoes_por_categoria(categoria_tecnica_sugestao)
     exemplo_ativos = ",".join(ativos_sugeridos[:3]) if ativos_sugeridos else "AAPL,GOOGL,MSFT"
     
     ativos_comparacao = st.text_area(
@@ -118,67 +126,49 @@ def executar_comparacao_ativos(tipo_ativo, periodo_analise):
 
 def exibir_analise_preditiva(resultado):
     st.success("✅ Análise preditiva concluída!")
-    
-    rec_map = {
-        "COMPRA FORTE": "strong-buy", "COMPRA": "buy",
-        "VENDA FORTE": "strong-sell", "VENDA": "sell", "NEUTRO": "neutral"
-    }
+    rec_map = {"COMPRA FORTE": "strong-buy", "COMPRA": "buy", "VENDA FORTE": "strong-sell", "VENDA": "sell", "NEUTRO": "neutral"}
     rec_class = rec_map.get(resultado['recomendacao'], "neutral")
-    
     html_string = f"""<div class="recommendation-box {rec_class}">{resultado["recomendacao"]}</div>"""
     st.markdown(html_string, unsafe_allow_html=True)
-    
+    if resultado['recomendacao'] == "VENDA FORTE":
+        st.warning("⚠️ **Sugestão de Análise:** A recomendação é de 'Venda Forte'. Considere revisar sua posição.")
+    elif resultado['recomendacao'] == "COMPRA FORTE":
+        st.info("💡 **Sugestão de Análise:** A recomendação é de 'Compra Forte'. Este pode ser um bom momento para entrar.")
     col1, col2, col3 = st.columns(3)
     col1.metric("💰 Preço Atual", f"${resultado['preco_atual']:.2f}")
     col2.metric("📊 Score", f"{resultado['score_consolidado']:.3f}")
     col3.metric("📈 RSI", f"{resultado['rsi_atual']:.1f}")
-    
     with st.expander("🎯 Preços-Alvo e Análise Detalhada"):
         st.metric("🎯 Preço Alvo (Alta)", f"${resultado['preco_alvo_alta']:.2f}")
         st.metric("🛑 Preço Alvo (Baixa)", f"${resultado['preco_alvo_baixa']:.2f}")
         st.write(f"**Tendência RSI:** {resultado['analise_detalhada']['tendencia_rsi']}")
         st.write(f"**Posição Bollinger:** {resultado['analise_detalhada']['posicao_bb']}")
         st.write(f"**Momentum MACD:** {resultado['analise_detalhada']['momentum_macd']}")
-
     fig = AnalisePreditiva().criar_grafico_analise_completa(resultado)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
-        
-        # <<< NOVO BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
-            st.markdown("""
-            - **Preço:** A linha principal que mostra a cotação do ativo ao longo do tempo.
-            - **BB Superior / Inferior (Bandas de Bollinger):** Criam um canal de volatilidade. Preço perto da banda superior pode indicar sobrecompra (possível venda); perto da inferior, sobrevenda (possível compra).
-            - **Média Móvel:** Suaviza o preço para mostrar a tendência principal. Se o preço está acima dela, a tendência é de alta, e vice-versa.
-            - **RSI (Índice de Força Relativa):** Mede a força do movimento. Acima de 70 é considerado sobrecomprado; abaixo de 30, sobrevendido.
-            - **MACD e Sinal:** Indicador de tendência. Quando a linha MACD (mais rápida) cruza para cima da linha de Sinal (mais lenta), é um sinal de compra. O inverso é um sinal de venda.
-            - **Histograma:** Representa a diferença entre o MACD e o Sinal. Barras grandes indicam que a tendência atual (alta ou baixa) está forte.
-            - **Score Consolidado:** Uma métrica criada por este programa que combina todos os indicadores em uma única pontuação para gerar a recomendação final.
-            """)
+            st.markdown("""...""")
 
 def exibir_recomendacoes_avancadas(resultado):
     st.success("✅ Recomendação avançada gerada!")
-    
-    rec_map = {
-        "COMPRA MUITO FORTE": "strong-buy", "COMPRA FORTE": "strong-buy", "COMPRA": "buy",
-        "VENDA MUITO FORTE": "strong-sell", "VENDA FORTE": "strong-sell", "VENDA": "sell", "NEUTRO": "neutral"
-    }
+    rec_map = {"COMPRA MUITO FORTE": "strong-buy", "COMPRA FORTE": "strong-buy", "COMPRA": "buy", "VENDA MUITO FORTE": "strong-sell", "VENDA FORTE": "strong-sell", "VENDA": "sell", "NEUTRO": "neutral"}
     rec_class = rec_map.get(resultado['recomendacao'], "neutral")
-
     html_string = f"""<div class="recommendation-box {rec_class}">{resultado["recomendacao"]}  
 <small>Confiança: {resultado["confianca"]}</small></div>"""
     st.markdown(html_string, unsafe_allow_html=True)
-    
+    if "VENDA" in resultado['recomendacao'] and ("FORTE" in resultado['recomendacao'] or "MUITO FORTE" in resultado['recomendacao']):
+        st.warning("⚠️ **Sugestão de Análise:** A recomendação de venda é forte. Verifique os níveis de stop loss.")
+    elif "COMPRA" in resultado['recomendacao'] and ("FORTE" in resultado['recomendacao'] or "MUITO FORTE" in resultado['recomendacao']):
+        st.info("💡 **Sugestão de Análise:** A recomendação de compra é forte. Verifique os preços-alvo.")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💰 Preço Atual", f"${resultado['preco_atual']:.2f}")
     col2.metric("📊 Score Final", f"{resultado['score_final']:.3f}")
     col3.metric("🎯 Alvo Principal", f"${resultado['preco_alvo_1']:.2f}")
     col4.metric("🛑 Stop Loss", f"${resultado['stop_loss']:.2f}")
-    
     if resultado['padroes_recentes']:
         st.subheader("🕯️ Padrões de Candlestick Recentes")
         st.info(f"Padrões identificados nos últimos 5 dias: **{', '.join(resultado['padroes_recentes'])}**")
-    
     with st.expander("🔬 Análise Técnica Detalhada"):
         analise = resultado['analise_detalhada']
         st.write(f"**RSI:** {analise['tendencia_rsi']}")
@@ -186,60 +176,30 @@ def exibir_recomendacoes_avancadas(resultado):
         st.write(f"**MACD:** {analise['momentum_macd']}")
         st.write(f"**Força da Tendência:** {analise['forca_tendencia']}")
         st.write(f"**Volatilidade:** {analise['volatilidade']}")
-
     fig = SistemaRecomendacoes().criar_grafico_recomendacao(resultado)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
-        
-        # <<< NOVO BLOCO DE EXPLICAÇÃO ADICIONADO AQUI >>>
         with st.expander("📘 Entenda os Indicadores do Gráfico"):
-            st.markdown("""
-            - **Gráfico de Candlestick:** Mostra os preços de abertura, máximo, mínimo e fechamento de cada dia.
-            - **BB Superior / Inferior (Bandas de Bollinger):** Criam um canal de volatilidade. Preço perto da banda superior pode indicar sobrecompra (possível venda); perto da inferior, sobrevenda (possível compra).
-            - **Média Móvel:** Suaviza o preço para mostrar a tendência principal. Se o preço está acima dela, a tendência é de alta, e vice-versa.
-            - **RSI (Índice de Força Relativa):** Mede a força do movimento. Acima de 70 é considerado sobrecomprado; abaixo de 30, sobrevendido.
-            - **MACD e Sinal:** Indicador de tendência. Quando a linha MACD (mais rápida) cruza para cima da linha de Sinal (mais lenta), é um sinal de compra. O inverso é um sinal de venda.
-            - **Histograma:** Representa a diferença entre o MACD e o Sinal. Barras grandes indicam que a tendência atual (alta ou baixa) está forte.
-            - **Score de Recomendação:** Uma métrica ponderada que combina múltiplos indicadores para gerar a recomendação final.
-            - **Volume:** Mostra a quantidade de ações negociadas. Um aumento no volume pode confirmar a força de uma tendência.
-            """)
+            st.markdown("""...""")
 
 def comparar_multiplos_ativos(simbolos, periodo):
     analisador = AnalisePreditiva()
     resultados = []
     progress_bar = st.progress(0)
     status_text = st.empty()
-    
     for i, simbolo in enumerate(simbolos):
         status_text.text(f"Analisando {i+1}/{len(simbolos)}: {simbolo}...")
         resultado = analisador.gerar_recomendacao(simbolo, periodo=periodo)
         if resultado:
-            resultados.append({
-                'Símbolo': simbolo,
-                'Preço Atual': resultado['preco_atual'],
-                'Recomendação': resultado['recomendacao'],
-                'Score': resultado['score_consolidado'],
-                'RSI': resultado['rsi_atual']
-            })
+            resultados.append({'Símbolo': simbolo, 'Preço Atual': resultado['preco_atual'], 'Recomendação': resultado['recomendacao'], 'Score': resultado['score_consolidado'], 'RSI': resultado['rsi_atual']})
         progress_bar.progress((i + 1) / len(simbolos))
-    
     status_text.success("Comparação concluída!")
-    
     if resultados:
         df_comparacao = pd.DataFrame(resultados)
         st.subheader("📊 Tabela Comparativa")
-        st.dataframe(df_comparacao.style.format({
-            'Preço Atual': '${:,.2f}',
-            'Score': '{:.3f}',
-            'RSI': '{:.1f}'
-        }), use_container_width=True)
-        
+        st.dataframe(df_comparacao.style.format({'Preço Atual': '${:,.2f}', 'Score': '{:.3f}', 'RSI': '{:.1f}'}), use_container_width=True)
         st.subheader("⚖️ Comparação de Scores")
-        fig_scores = go.Figure(data=[go.Bar(
-            x=df_comparacao['Símbolo'],
-            y=df_comparacao['Score'],
-            marker_color=['#28a745' if s > 0.1 else '#dc3545' if s < -0.1 else '#6c757d' for s in df_comparacao['Score']]
-        )])
+        fig_scores = go.Figure(data=[go.Bar(x=df_comparacao['Símbolo'], y=df_comparacao['Score'], marker_color=['#28a745' if s > 0.1 else '#dc3545' if s < -0.1 else '#6c757d' for s in df_comparacao['Score']])])
         fig_scores.update_layout(title="Comparação dos Scores de Recomendação", template="plotly_white")
         st.plotly_chart(fig_scores, use_container_width=True)
     else:
@@ -259,34 +219,37 @@ def main():
     
     st.sidebar.subheader("📊 Configurações do Ativo")
     
-    simbolo = ""
-    tipo_ativo = ""
-
-    if modo_operacao != "Comparação de Ativos":
-        tipo_ativo = st.sidebar.selectbox("Tipo de Ativo", list(CATEGORIAS_DE_ATIVOS.keys()), key="tipo_ativo_selectbox")
-        simbolos_sugeridos = CATEGORIAS_DE_ATIVOS[tipo_ativo]
-        simbolo_selecionado = st.sidebar.selectbox("Símbolos Sugeridos", simbolos_sugeridos, key="simbolo_sugerido_selectbox")
-        simbolo_manual = st.sidebar.text_input("Ou digite o símbolo manualmente:", value=simbolo_selecionado, key="simbolo_manual_text")
-        simbolo = simbolo_manual.strip().upper() if simbolo_manual else simbolo_selecionado
-    else:
-        tipo_ativo = st.sidebar.selectbox("Selecione uma categoria para sugestões:", list(CATEGORIAS_DE_ATIVOS.keys()), key="tipo_ativo_comparacao_selectbox")
-
     periodo_analise = st.sidebar.selectbox(
         "Período de Análise",
         ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
-        index=3, # Padrão para 1 ano
+        index=3,
         key="periodo_analise_selectbox"
     )
     
-    if modo_operacao == "Análise Preditiva Básica":
-        if simbolo:
-            executar_analise_preditiva(simbolo, periodo_analise)
-    elif modo_operacao == "Recomendações Avançadas":
-        if simbolo:
-            executar_recomendacoes_avancadas(simbolo, periodo_analise)
-    elif modo_operacao == "Comparação de Ativos":
-        if tipo_ativo:
-            executar_comparacao_ativos(nome_tipo_ativo, periodo_analise)
+    if modo_operacao == "Comparação de Ativos":
+        executar_comparacao_ativos(periodo_analise)
+    else:
+        # Lógica para Análise Preditiva e Recomendações Avançadas
+        nome_tipo_ativo = st.sidebar.selectbox(
+            "Tipo de Ativo", 
+            list(CATEGORIAS_DE_ATIVOS.keys()), 
+            key="tipo_ativo_selectbox"
+        )
+        
+        # CORREÇÃO: Usar a função para obter a lista de símbolos correta
+        categoria_tecnica = CATEGORIAS_DE_ATIVOS[nome_tipo_ativo]
+        simbolos_sugeridos = obter_sugestoes_por_categoria(categoria_tecnica)
+        
+        simbolo_selecionado = st.sidebar.selectbox("Símbolos Sugeridos", simbolos_sugeridos, key="simbolo_sugerido_selectbox")
+        simbolo_manual = st.sidebar.text_input("Ou digite o símbolo manualmente:", value=simbolo_selecionado, key="simbolo_manual_text")
+        simbolo = simbolo_manual.strip().upper() if simbolo_manual else simbolo_selecionado
+        
+        if modo_operacao == "Análise Preditiva Básica":
+            if simbolo:
+                executar_analise_preditiva(simbolo, periodo_analise)
+        elif modo_operacao == "Recomendações Avançadas":
+            if simbolo:
+                executar_recomendacoes_avancadas(simbolo, periodo_analise)
 
 if __name__ == "__main__":
     main()
