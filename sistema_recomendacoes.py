@@ -242,7 +242,7 @@ class SistemaRecomendacoes:
         fig.add_trace(go.Scatter(x=df.index, y=indicadores['sinal'], name='Sinal', line=dict(color='orange')), row=3, col=1)
         fig.add_trace(go.Bar(x=df.index, y=indicadores['histograma'], name='Histograma', marker_color='grey'), row=3, col=1)
         
-        fig.add_trace(go.Scatter(x=scores.index, y=scores['score_final'], name='Score Final', line=dict(color='black')), row=4, col=1)
+        fig.add_trace(go.Scatter(x=scores.index, y=scores['score_final'], name='Score Final', line=dict(color='orange')), row=4, col=1)
         fig.add_hline(y=0.3, line_dash="dash", line_color="green", row=4, col=1)
         fig.add_hline(y=-0.3, line_dash="dash", line_color="red", row=4, col=1)
         
