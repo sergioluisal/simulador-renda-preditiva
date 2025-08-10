@@ -406,7 +406,7 @@ class AnalisePreditiva:
         # Score consolidado
         fig.add_trace(
             go.Scatter(x=sinais.index, y=sinais['score_consolidado'], name='Score Consolidado',
-                      line=dict(color='black')),
+                      line=dict(color='orange')),
             row=4, col=1
         )
         fig.add_hline(y=0.3, line_dash="dash", line_color="green", row=4, col=1)
